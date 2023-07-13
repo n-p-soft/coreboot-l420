@@ -45,7 +45,7 @@ flashrom -p your_programmer_type -r bios.sav
 coreboot-4.20/util/ifdtool/ifdtool -x bios.sav
 ```
 
-* cd into l420/coreboot-420, configure and build coreboot:
+* cd into l420/coreboot-4.20, configure and build coreboot:
 
 ```
 cd l420
