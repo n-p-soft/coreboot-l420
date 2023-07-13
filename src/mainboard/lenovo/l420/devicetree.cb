@@ -1,0 +1,131 @@
+# Lenovo L420
+#
+# PCIe map:
+# 0 -> x
+# 1 -> WLAN
+# 2 -> SD/MMC reader
+# 3 -> Express Card
+# 4 -> x
+# 5 -> LAN RTL8111
+# 6 -> x
+# 7 -> x
+#
+# 0C31 -> TPM
+# 0C09 -> IT8518 (EC)
+# 0C14 -> WMI
+# 0C0A -> battery control
+# IBM0068 -> ThinkPad button
+# INT3f0d -> Interphase Corporation (light sensor ?)
+# 0C0C -> Power button
+# 0C0D -> Lid device
+# 0C0E -> Sleep button
+# 0C02
+# 0F13 -> PS2 mouse (touchpad)
+# 0B00 -> RTC
+# LEN0017 -> touchpad
+# 0303 -> keyboard
+# 0C04 -> x87
+#
+# USB:
+# P0 -> eSata combo, max 1A USB_OC0 (GPIO59)
+# P1 -> max 1.6A USB_OC0
+# P2+P3 -> USB_OC4 (G546B2P1UF) (GPIO43)
+#
+# I/O default values: 0x480 (0x80) for GPIOBASE,
+# 0x500 (PMBASE), 0x560 (TCOBASE)
+# EC = IT8518 60h/64h (KBC)
+
+#include <src/northbridge/intel/sandybridge/chipset.cb>
+
+chip northbridge/intel/sandybridge
+	device domain 0 on
+		subsystemid 0x17aa 0x21dd inherit
+
+		device ref igd on
+			# IGD Displays (spread spectrum on)
+			register "gfx" = "GMA_STATIC_DISPLAYS(1)"
+
+			# Enable DisplayPort Hotplug with 6ms pulse
+			#register "gpu_dp_d_hotplug" = "0x06"
+
+			# Enable Panel as LVDS and configure power delays
+			register "gpu_panel_port_select" = "PANEL_PORT_LVDS"
+			register "gpu_panel_power_cycle_delay" = "6"
+			register "gpu_panel_power_up_delay" = "300"		# T1+T2: 30ms
+			register "gpu_panel_power_down_delay" = "300"		# T5+T6: 30ms
+			register "gpu_panel_power_backlight_on_delay" = "2500"	# T3: 200ms
+			register "gpu_panel_power_backlight_off_delay" = "2500"	# T4: 200ms
+			register "gpu_cpu_backlight" = "0x1155"
+			register "gpu_pch_backlight" = "0x11551155"
+		end
+
+		chip southbridge/intel/bd82x6x # Intel Series 6 Cougar Point PCH
+			# GPI routing
+			#  0 No effect (default)
+			#  1 SMI# (if corresponding ALT_GPI_SMI_EN bit is also set)
+			#  2 SCI (if corresponding GPIO_EN bit is also set)
+			# IT8518 SIO_EXT_SMI# -> GPIO1
+			# IT8518 SIO_EXT_SCI# -> GPIO6
+			register "alt_gp_smi_en" = "0x0000"
+			register "gpi1_routing" = "1"
+			register "gpi6_routing" = "2"
+
+			register "pcie_hotplug_map" = "{ 0, 0, 0, 1, 0, 0, 0, 0 }"
+
+			# Enable zero-based linear PCIe root port functions
+			register "pcie_port_coalesce" = "1"
+
+			# device specific SPI configuration
+			register "spi_uvscc" = "0x2005"
+			register "spi_lvscc" = "0x2005"
+
+			device ref ehci1 on end
+			device ref ehci2 on end
+			device ref hda on end
+			device ref pcie_rp2 on end
+			device ref pcie_rp3 on end
+
+			device ref pcie_rp4 on
+				smbios_slot_desc "7" "3" "ExpressCard Slot" "8"
+			end
+
+			device ref pcie_rp6 on
+				chip drivers/net
+					device pci 00.0 on end
+				end
+			end
+
+			device ref lpc on
+				chip ec/quanta/it8518
+					device pnp 0c09.0 on end
+				end
+				chip drivers/pc80/tpm
+					device pnp 0c31.0 on end
+				end
+			end
+
+			device ref sata1 on
+				# Enable SATA ports 0 (HDD bay) & 1 (ODD bay) & 2 (mSATA) &
+				# 3 (eSATA) & 4 (dock)
+				register "sata_port_map" = "0x1f"
+				# Set max SATA speed to 6.0 Gb/s
+				register "sata_interface_speed_support" = "0x3"
+			end
+
+			device ref smbus on
+				chip drivers/i2c/at24rf08c
+					device i2c 54 on end
+					device i2c 55 on end
+					device i2c 56 on end
+					device i2c 57 on end
+					device i2c 5c on end
+					device i2c 5d on end
+					device i2c 5e on end
+					device i2c 5f on end
+				end
+			end
+
+			device ref thermal on end
+		end
+	end
+end

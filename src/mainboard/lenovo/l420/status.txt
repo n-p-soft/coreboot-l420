@@ -1,0 +1,67 @@
+L420 hardware status
+====================
+
+Chipset: C200/HM65 (Cougar Point, Hudson River, cpu 0x206ax).
+
+Component    | Status       |  Date  | Remark
+-------------|--------------|--------|-----------------------------------------
+ACPI         | OK           |23/06/20| Fan managed by EC.
+LCD          | OK           |22/11/20|
+Video        | OK           |22/11/20| internal LVDS panel.
+Memory       | OK           |23/06/21| Tested, 8GB (seems 12GB is working).
+             |              |        | Using one 8GB DIMM (officially not
+             |              |        | supported) brings only 2 GB under
+             |              |        | 32-bit Linux.
+CPU          | OK           |22/11/20| 4 cores (hyperthreading on).
+LAN          | OK           |22/11/20| Gigabit Realtek 8111B/8168.
+TPM          | OK           |22/11/20|
+Keyboard     | OK           |22/11/20|
+Touchpad     | Should work  |23/06/20| (present in device tree)
+Trackpoint   | Should work  |23/06/20| (present in device tree)
+Audio        | OK           |23/06/21|
+WLAN         | OK           |23/07/02|
+WWAN         | Should work  |        | (present in device tree)
+SATA         | OK           |22/11/20|
+eSATA        | OK           |23/07/03|
+Fingerprint  | should work  |22/11/20| (USB)
+SD/MMC       | ?            |        |
+USB0         | OK           |23/06/26| (eSATA combo)
+USB1         | should work  |22/11/20| (yellow port, in device tree)
+USB2         | OK           |22/11/20|
+USB3         | OK           |22/11/20|
+ExpressCard  | OK           |23/06/21|
+Suspend      | OK           |23/06/23| Wake-up by keyboard.
+Battery      | OK           |22/11/20| Managed by EC.
+
+* ChangeLog
+
+22/11/20: initial port to v4.18 (Nicolas Provost)
+23/06/21: port to master branch (Nicolas Provost)
+23/06/21: fix HDA definition (Nicolas Provost)
+23/06/22: fix EC and ACPI (Nicolas Provost)
+23/06/26: fix a resource conflict and thermal ACPI code (Nicolas Provost)
+
+* What external files are needed to compile coreboot ?
+
+You will need the Intel Management part of the BIOS (me.bin) and the
+BIOS descriptor (descriptor.bin). Both can be extracted from the
+original BIOS, or from a BIOS update, using the "ifdtool" located under
+util/ifdtool. The original BIOS can be retrieved using an external SPI
+programmer (see below), or perhaps, under Linux, using the command
+"flashrom -p internal -r bios".
+
+* How to flash the Winbond W25Q32 SPI rom ?
+
+The SPI chip for the BIOS is located under the motherboard, near middle-
+bottom side (the SPI rom for the embedded controller is not far, but to
+the left when you see the backside of the motherboard, do not confuse).
+
+Some parts of the original BIOS are locked by the chipset, so it is not
+possible to use Flashrom together with the internal (chipset) programmer.
+You must use an external programmer that can afford sufficient current to
+the motherboard (ex. CH341, but not Minipro TL866A).
+
+coreboot allows to unlock the locked regions of the new BIOS, so direct
+flashing using internal programmer (flashrom -p internal) may work once
+you are using coreboot as BIOS, but it is not recommended to do that
+(do it at your own risks).
