@@ -55,6 +55,14 @@ make menuconfig
 make
 ```
 
+  Alternatively, you can use my configuration file:
+
+```
+cd l420
+cp ../coreboot-l420-master/config ./.config
+make
+```
+
 * on success, the file build/coreboot.rom will be the one to flash into the
   SPI chip of the motherboard, which should be a Winbond W25Q32 (do not
   confuse with the SPI chip for the embedded controller). It is located near
