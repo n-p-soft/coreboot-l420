@@ -3,9 +3,11 @@
 This is a patch that was submitted to coreboot to support Lenovo L420 laptop.
 Lenovo L421 and L520 laptops should also work if using the IT8518 embedded 
 controller. Thus, this is not yet official in coreboot tree, but *working*.
+Currently, the version 4.20 of coreboot is to be used.
 
 **WARNING: this was tested on my L420 laptop. The FIRST thing to do is to
 save the content of your actual BIOS chip before flashing another one.**
+
 
 ### How to build coreboot for the L420
 
@@ -73,12 +75,18 @@ there are two cases:
 1. you are running a i386/i686 version of Linux: then you can use the
    native compiler presently in your distribution, provided that you also
    selected the option "use any toolchain" under the "general" menu of
-   coreboot configuration. I used Microknoppix live DVD which works well
-   (you may have to install extra packages such as flex, bison).
+   coreboot configuration. I used Microknoppix live DVD which works well.
+   You may have to install extra packages such as bison, flex, ncurses,
+   acpica.. For Knoppix, which is Debian-based:
+```
+sudo apt-get install ncurses-dev bison flex acpica-tools
+sudo ln -s /usr/bin/python3 /usr/bin/python
+```
 
 2. you are running, for example, an x86-64 (amd64) Linux distribution:
    you will have to download an compile the coreboot cross-toolchain, or
    install one x86 cross-compiler (gcc).
+
 
 ### Supported hardware
 
